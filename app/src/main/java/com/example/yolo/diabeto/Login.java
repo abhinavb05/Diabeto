@@ -24,25 +24,29 @@ public class Login extends AppCompatActivity {
     EditText un;
     EditText pas;
     TextView sup;
+    String ps,usn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        progressBar = (ProgressBar)findViewById(R.id.progressBar4);
         btn = (Button) findViewById(R.id.btn_login);
         un = (EditText)findViewById(R.id.input_email);
         pas = (EditText)findViewById(R.id.input_password);
         sup = (TextView)findViewById(R.id.link_signup);
+        auth = FirebaseAuth.getInstance();
         sup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(Login.this, Signup.class));
+                finish();
             }
         });
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String usn = un.getText().toString();
-                String ps = pas.getText().toString();
+                usn = un.getText().toString();
+                ps = pas.getText().toString();
                 if (TextUtils.isEmpty(usn)) {
                     Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
                     return;
@@ -58,25 +62,30 @@ public class Login extends AppCompatActivity {
                     return;
                 }
                 progressBar.setVisibility(View.VISIBLE);
-                auth.createUserWithEmailAndPassword(usn,ps).addOnCompleteListener(Login.this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Toast.makeText(Login.this, "createUserWithEmail:onComplete:" + task.isSuccessful(), Toast.LENGTH_SHORT).show();
-                        progressBar.setVisibility(View.GONE);
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Toast.makeText(Login.this, "Authentication failed." + task.getException(),
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            //startActivity(new Intent(SignupActivity.this, MainActivity.class));
-                            finish();
-                        }
-                    }
-                });
+                auth.signInWithEmailAndPassword(usn,ps)
+                        .addOnCompleteListener(Login.this, new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                // If sign in fails, display a message to the user. If sign in succeeds
+                                // the auth state listener will be notified and logic to handle the
+                                // signed in user can be handled in the listener.
+                                progressBar.setVisibility(View.GONE);
+                                if (!task.isSuccessful()) {
+                                    // there was an error
+                                    if (ps.length() < 6) {
+                                        pas.setError("Short Password");
+                                    } else {
+                                        Toast.makeText(Login.this,"Authentication failed!", Toast.LENGTH_LONG).show();
+                                    }
+                                } else {
+                                    Toast.makeText(Login.this,"Welcome!", Toast.LENGTH_LONG).show();
+                                    //Intent intent = new Intent(Login.this, MainActivity.class);
+                                    //startActivity(intent);
+                                    //finish();
+                                }
+                            }
+                        });
             }
-
         });
     }
 }
