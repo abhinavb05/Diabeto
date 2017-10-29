@@ -79,9 +79,9 @@ public class Login extends AppCompatActivity {
                                     }
                                 } else {
                                     Toast.makeText(Login.this,"Welcome!", Toast.LENGTH_LONG).show();
-                                    //Intent intent = new Intent(Login.this, MainActivity.class);
-                                    //startActivity(intent);
-                                    //finish();
+                                    Intent intent = new Intent(Login.this, Graph.class);
+                                    startActivity(intent);
+                                    finish();
                                 }
                             }
                         });
